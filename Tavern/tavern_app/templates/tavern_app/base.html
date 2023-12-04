@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>TAWERNA RPG</title>
+    <link rel="stylesheet", href={% static 'admin/css/mystyle.css' %}>
+</head>
+
+{#<body style="background-image: url('{% static 'admin/img/background.png' %}');">#}
+<body>
+    <p class="tavern">TAWERNA RPG</p>
+    {% block content %}
+        {% if user.is_authenticated %}
+            <h3>Zalogowano jako: {{ user.username }}</h3>
+            <h4><a href="/logout/">Wyloguj</a></h4>
+        {% endif %}
+        {% if not user.is_authenticated %}
+            <h3><a href="/login/">Zaloguj</a></h3>
+        {% endif %}
+    {% endblock %}
+    {% block foot %}
+    {% endblock %}
+</body>
+
+</html>
