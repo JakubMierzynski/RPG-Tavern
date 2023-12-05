@@ -2,7 +2,9 @@
 {% block content %}
 <form action="" method="post">
   {% csrf_token %}
-  {{ form.as_p }}
-  <input type="submit" value="Save">
+  {{ user_form.as_p }}
+  {{ profile_form.as_p }}
+  <button type="submit">Utwórz użytkownika</button>
 </form>
+
 {% endblock %}

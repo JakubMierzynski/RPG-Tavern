@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-
-from .models import NewUser
+from tavern_app.models import Profile, User
 
 # Register your models here.
-admin.site.register(NewUser)
+admin.site.register(Profile)
