@@ -14,7 +14,7 @@
         <h3>Znalezione sesje ze słowem "{{ title }}":</h3>
             <ul>
                 {% for session in gamer_sessions %}
-                    <li><a href="/gamer-session-details/{{ session.id }}/">{{ session.title }}</a> Opis: {{ session.description }}</li>
+                    <li><a href="/gamer-session-details/{{ session.id }}/">{{ session.title }}</a> Opis: {{ session.description }} Data: {{ session.date }} Godzina {{ session.time }}</li>
                 {% endfor %}
             </ul>
     {% endif %}
@@ -23,7 +23,7 @@
         <h3>Znalezione sesje ze słowem "{{ title }}":</h3>
             <ul>
                 {% for session in master_sessions %}
-                    <li><a href="/master-session-details/{{ session.id }}/">{{ session.title }}</a> Opis: {{ session.description }}</li>
+                    <li><a href="/master-session-details/{{ session.id }}/">{{ session.title }}</a> Opis: {{ session.description }} Data: {{ session.date }} Godzina {{ session.time }}</li>
                 {% endfor %}
             </ul>
     {% endif %}

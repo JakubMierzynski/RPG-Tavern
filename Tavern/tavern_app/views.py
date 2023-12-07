@@ -6,6 +6,8 @@ from django.views import View
 from django.views.generic import CreateView, FormView
 from tavern_app.models import Profile, MasterSession, GamerSession
 from tavern_app.forms import UserForm, ProfileForm, User, LoginForm, FindUserForm, MasterSessionForm, GamerSessionForm, FindSessionForm
+from datetime import datetime
+
 
 
 
@@ -244,41 +246,93 @@ class FindSessionView(View):
             title = form.cleaned_data["title"]
             if_gamer = form.cleaned_data["if_gamer"]
             if_master = form.cleaned_data["if_master"]
+            active_only = form.cleaned_data["if_active_only"]
 
             if if_gamer:
-                gamer_sessions = GamerSession.objects.filter(title__icontains=title)
-                request_method = request.method
+                if active_only:
+                    gamer_sessions = GamerSession.objects.filter(title__icontains=title)
+                    gamer_sessions_active_only = []
 
-                if len(gamer_sessions) == 0:
-                    ctx = {"not_found": True,
-                           "title": title,
-                           "form": form}
-                    return render(request, "tavern_app/find_session.html", ctx)
+                    for session in gamer_sessions:
+                        if session.date > datetime.now().date() or session.date == datetime.now().date():
+                            if session.time > datetime.now().time():
+                                gamer_sessions_active_only.append(session)
 
-                ctx = {"gamer_sessions": gamer_sessions,
-                       "request_method": request_method,
-                       "title": title,
-                       "form": form}
+                    if len(gamer_sessions) == 0:
+                        ctx = {"not_found": True,
+                               "title": title,
+                               "form": form}
+                        return render(request, "tavern_app/find_session.html", ctx)
 
-                return render(request, "tavern_app/find_session.html", ctx)
+                    else:
+                        request_method = request.method
+                        ctx = {"gamer_sessions": gamer_sessions_active_only,
+                               "request_method": request_method,
+                               "title": title,
+                               "form": form}
 
-            if if_master:
-                master_sessions = MasterSession.objects.filter(title__icontains=title)
-
-                if len(master_sessions) == 0:
-                    ctx = {"not_found": True,
-                           "title": title,
-                           "form": form}
-                    return render(request, "tavern_app/find_session.html", ctx)
+                        return render(request, "tavern_app/find_session.html", ctx)
 
                 else:
+                    gamer_sessions = GamerSession.objects.filter(title__icontains=title)
                     request_method = request.method
 
-                    ctx = {"master_sessions": master_sessions,
+                    if len(gamer_sessions) == 0:
+                        ctx = {"not_found": True,
+                               "title": title,
+                               "form": form}
+                        return render(request, "tavern_app/find_session.html", ctx)
+
+                    ctx = {"gamer_sessions": gamer_sessions,
                            "request_method": request_method,
                            "title": title,
                            "form": form}
 
                     return render(request, "tavern_app/find_session.html", ctx)
+
+            if if_master:
+                if active_only:
+                    master_sessions = MasterSession.objects.filter(title__icontains=title)
+                    master_sessions_active_only = []
+
+                    for session in master_sessions:
+                        if session.date > datetime.now().date() or session.date == datetime.now().date():
+                            if session.time > datetime.now().time():
+                                master_sessions_active_only.append(session)
+
+                    if len(master_sessions) == 0:
+                        ctx = {"not_found": True,
+                               "title": title,
+                               "form": form}
+                        return render(request, "tavern_app/find_session.html", ctx)
+
+                    else:
+                        request_method = request.method
+                        ctx = {"gamer_sessions": master_sessions_active_only,
+                               "request_method": request_method,
+                               "title": title,
+                               "form": form}
+
+                        return render(request, "tavern_app/find_session.html", ctx)
+
+                else:
+
+                    master_sessions = MasterSession.objects.filter(title__icontains=title)
+
+                    if len(master_sessions) == 0:
+                        ctx = {"not_found": True,
+                               "title": title,
+                               "form": form}
+                        return render(request, "tavern_app/find_session.html", ctx)
+
+                    else:
+                        request_method = request.method
+
+                        ctx = {"master_sessions": master_sessions,
+                               "request_method": request_method,
+                               "title": title,
+                               "form": form}
+
+                        return render(request, "tavern_app/find_session.html", ctx)
         else:
             return render(request, "tavern_app/find_user.html", context={"form": form})
