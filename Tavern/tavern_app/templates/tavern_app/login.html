@@ -1,0 +1,15 @@
+{% extends "tavern_app/base.html" %}
+{% block title %}
+    Zaloguj się
+{% endblock %}
+<body>
+    {% block content %}
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Zaloguj" />
+        </form>
+        <h3>Nie masz założonego użytkownika? <a href="/sign-up/">Stwórz konto!</a></h3>
+    {% endblock %}
+</body>
+</html>

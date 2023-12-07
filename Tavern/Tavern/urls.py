@@ -15,11 +15,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from tavern_app.views import MainPage, SignUpUser
+from tavern_app.views import MainPage, SignUpUserView, LoginView, logout_view, FindUserView, UserDetailsView, CreateMasterSessionView, CreateGamerSessionView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", MainPage.as_view(), name="main"),
-    path("sign-up/", SignUpUser.as_view(), name="sign"),
-
+    path("sign-up/", SignUpUserView.as_view(), name="sign"),
+    path("log-in/", LoginView.as_view(), name="login"),
+    path("log-out/", logout_view, name="logout"),
+    path("find-user/", FindUserView.as_view(), name="find-user"),
+    path("user/<int:user_id>/", UserDetailsView.as_view(), name="user-details"),
+    path("create-master-session/", CreateMasterSessionView.as_view(), name="create-master-session"),
+    path("create-gamer-session/", CreateGamerSessionView.as_view(), name="create-gamer-session")
 
 ]

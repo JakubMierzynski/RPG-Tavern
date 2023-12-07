@@ -10,6 +10,28 @@
 
 }
 
-.email {
-    color: blue;
+.kala {
+    width: 600px;
+    height: 600px;
+    border: 1px solid gray;
+    margin: 50px auto;
+    background-color: yellow;
+}
+
+
+.sidenav {
+    height: 4%;
+    width: 100%;
+    position: fixed;
+    top: 200px;
+    left: 0;
+    background-color: #111;
+}
+
+.sidenav a {
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 25px;
+    color: yellow;
+    display: inline-flex;
 }

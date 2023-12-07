@@ -1,0 +1,10 @@
+{% extends "tavern_app/base.html" %}
+{% block title %}
+    {{ user.username }}
+{% endblock %}
+{% block content %}
+    <h3><p>{{ user.username }}</p></h3>
+    <h3>Opis:</h3>
+    <p>{{ user.profile.description }}</p>
+    <h3><p>SESJE UŻYTKOWNIKA:</p></h3>
+{% endblock %}

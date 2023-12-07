@@ -4,21 +4,49 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>TAWERNA RPG</title>
+  <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet", href={% static 'admin/css/mystyle.css' %}>
+    <style type="text/css">
+        .sidenav {
+            height: 4%;
+            width: 100%;
+            position: fixed;
+            top: 200px;
+            left: 0;
+            background-color: #111;
+        }
+
+        .sidenav a {
+            padding: 6px 8px 6px 16px;
+            text-decoration: none;
+            font-size: 25px;
+            color: yellow;
+            display: inline-flex;
+        }
+
+    </style>
 </head>
 
 {#<body style="background-image: url('{% static 'admin/img/background.png' %}');">#}
 <body>
     <p class="tavern">TAWERNA RPG</p>
+
+    <div class="sidenav">
+        <a href="/">Strona główna</a>
+        <a href="/find-user/">Znajdź użytkownika</a>
+    </div>
+
     {% block content %}
-        {% if user.is_authenticated %}
-            <h3>Zalogowano jako: {{ user.username }}</h3>
-            <h4><a href="/logout/">Wyloguj</a></h4>
-        {% endif %}
-        {% if not user.is_authenticated %}
-            <h3><a href="/login/">Zaloguj</a></h3>
-        {% endif %}
+        <div>
+            {% if user.is_authenticated %}
+                <h3>Zalogowano jako: {{ user.username }}</h3>
+                <h4><a href="/log-out/">Wyloguj</a></h4>
+            {% endif %}
+            {% if not user.is_authenticated %}
+                <h3><a href="/log-in/">Zaloguj</a></h3>
+            {% endif %}
+        </div>
+
     {% endblock %}
     {% block foot %}
     {% endblock %}
