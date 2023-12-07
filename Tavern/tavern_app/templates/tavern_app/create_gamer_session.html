@@ -3,6 +3,7 @@
     Stwórz sesję
 {% endblock %}
 {% block content %}
+    <h2>Utwórz sesję w poszukiwaniu Mistrza Gry</h2>
 <form action="" method="post">
   {% csrf_token %}
   {{ form.as_p }}

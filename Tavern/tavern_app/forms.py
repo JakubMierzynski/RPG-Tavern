@@ -3,7 +3,6 @@ from django import forms
 from django.contrib.auth.models import User
 from django.forms import PasswordInput, SelectDateWidget
 from datetime import datetime
-from time import localtime
 
 from tavern_app.models import Profile, MasterSession, GamerSession
 
@@ -115,11 +114,27 @@ class GamerSessionForm(forms.ModelForm):
         time = cleaned_data.get("time")
         today = date.today()
 
-        print(type(date))
-        print(type(today))
 
         if date < today:
             raise forms.ValidationError("Sesja nie może się odbyć w przeszłości")
 
         if time < datetime.now().time():
             raise forms.ValidationError("Godzina sesji jest z przeszłości")
+
+
+class FindSessionForm(forms.Form):
+    title = forms.CharField(label="Słowo klucz / Tytuł przygody", max_length=100)
+    if_gamer = forms.BooleanField(required=False, label='Poszukuję jako Gracz')
+    if_master = forms.BooleanField(required=False, label='Poszukuję jako Mistrz Gry')
+    if_active_only = forms.BooleanField(required=False, label='Wyszukaj tylko aktywne sesje')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if_gamer = cleaned_data.get("if_gamer")
+        if_master = cleaned_data.get("if_master")
+
+        if if_gamer and if_master:
+            raise forms.ValidationError("Nie można wyszukiwać jednocześnie jako Mistrz Gry i Gracz")
+
+        if not if_gamer and not if_master:
+            raise forms.ValidationError("Wybierz jedną z opcji wyszukiwania")

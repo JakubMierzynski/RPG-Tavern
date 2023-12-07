@@ -1,13 +1,13 @@
 from django.contrib import messages
 from django.contrib.auth import login, logout
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, FormView
 from tavern_app.models import Profile, MasterSession, GamerSession
-from tavern_app.forms import UserForm, ProfileForm, User, LoginForm, FindUserForm, MasterSessionForm, GamerSessionForm
-import django.contrib.messages
+from tavern_app.forms import UserForm, ProfileForm, User, LoginForm, FindUserForm, MasterSessionForm, GamerSessionForm, FindSessionForm
+
+
 
 
 # Create your views here.
@@ -96,14 +96,21 @@ class FindUserView(View):
 
             users = User.objects.filter(username__icontains=username)
 
-            request_method = request.method
+            if len(users) == 0:
+                ctx = {"not_found": True,
+                       "form": form,
+                       "username": username}
+                return render(request, "tavern_app/find_user.html", ctx)
 
-            ctx = {"users": users,
-                   "request_method": request_method,
-                   "username": username,
-                   "form": form}
+            else:
+                request_method = request.method
 
-            return render(request, "tavern_app/find_user.html", ctx)
+                ctx = {"users": users,
+                       "request_method": request_method,
+                       "username": username,
+                       "form": form}
+
+                return render(request, "tavern_app/find_user.html", ctx)
         else:
             return render(request, "tavern_app/find_user.html", context={"form": form})
 
@@ -114,6 +121,11 @@ class UserDetailsView(View):
         # Później dodane zostaną tu sesje do których się będziemy odwoływać
 
         return render(request, "tavern_app/user_details.html", context={"user": user})
+
+
+class CreateSessionBaseView(View):
+    def get(self, request):
+        return render(request, "tavern_app/create_session_base.html")
 
 
 class CreateMasterSessionView(View):
@@ -192,3 +204,81 @@ class CreateGamerSessionView(View):
 
         else:
             return render(request, 'tavern_app/create_gamer_session.html', {"form": form})
+
+
+class AllSessionsView(View):
+    def get(self, request):
+        all_master_sessions = MasterSession.objects.all()
+        all_gamer_sessions = GamerSession.objects.all()
+
+        return render(request, "tavern_app/all_sessions.html", context={"master_sessions": all_master_sessions,
+                                                                        "gamer_sessions": all_gamer_sessions})
+
+
+class MasterSessionDetailsView(View):
+    def get(self, request, session_id):
+        session = MasterSession.objects.get(pk=session_id)
+
+        return render(request, "tavern_app/master_session_details.html", context={"master_session": session})
+
+
+class GamerSessionDetailsView(View):
+    def get(self, request, session_id):
+        session = GamerSession.objects.get(pk=session_id)
+        return render(request, "tavern_app/gamer_session_details.html", context={"gamer_session": session})
+
+
+class FindSessionView(View):
+    def get(self, request):
+        form = FindSessionForm()
+        request_method = request.method
+        ctx = {"form": form,
+               "request_method": request_method}
+
+        return render(request, "tavern_app/find_session.html", ctx)
+
+    def post(self, request):
+        form = FindSessionForm(request.POST)
+
+        if form.is_valid():
+            title = form.cleaned_data["title"]
+            if_gamer = form.cleaned_data["if_gamer"]
+            if_master = form.cleaned_data["if_master"]
+
+            if if_gamer:
+                gamer_sessions = GamerSession.objects.filter(title__icontains=title)
+                request_method = request.method
+
+                if len(gamer_sessions) == 0:
+                    ctx = {"not_found": True,
+                           "title": title,
+                           "form": form}
+                    return render(request, "tavern_app/find_session.html", ctx)
+
+                ctx = {"gamer_sessions": gamer_sessions,
+                       "request_method": request_method,
+                       "title": title,
+                       "form": form}
+
+                return render(request, "tavern_app/find_session.html", ctx)
+
+            if if_master:
+                master_sessions = MasterSession.objects.filter(title__icontains=title)
+
+                if len(master_sessions) == 0:
+                    ctx = {"not_found": True,
+                           "title": title,
+                           "form": form}
+                    return render(request, "tavern_app/find_session.html", ctx)
+
+                else:
+                    request_method = request.method
+
+                    ctx = {"master_sessions": master_sessions,
+                           "request_method": request_method,
+                           "title": title,
+                           "form": form}
+
+                    return render(request, "tavern_app/find_session.html", ctx)
+        else:
+            return render(request, "tavern_app/find_user.html", context={"form": form})

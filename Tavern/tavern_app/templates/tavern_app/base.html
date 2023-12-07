@@ -22,18 +22,25 @@
             font-size: 25px;
             color: yellow;
             display: inline-flex;
+            justify-content: center;
+
         }
 
     </style>
 </head>
 
-{#<body style="background-image: url('{% static 'admin/img/background.png' %}');">#}
+<body style="background-image: url('{% static 'admin/img/background.png' %}');">
 <body>
     <p class="tavern">TAWERNA RPG</p>
 
     <div class="sidenav">
         <a href="/">Strona główna</a>
+        <a href="/sessions/">Wszystkie sesje</a>
+        <a href="/create-session/">Stwórz sesję</a>
+        <a href="/find-session/">Znajdź sesję</a>
         <a href="/find-user/">Znajdź użytkownika</a>
+        <a href="/user/{{ user.id }}">Mój profil</a>
+
     </div>
 
     {% block content %}

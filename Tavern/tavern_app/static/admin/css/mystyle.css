@@ -35,3 +35,7 @@
     color: yellow;
     display: inline-flex;
 }
+
+.table {
+  border: 1px solid black;
+}

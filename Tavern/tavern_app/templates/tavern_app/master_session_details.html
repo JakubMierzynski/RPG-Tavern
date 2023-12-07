@@ -1,0 +1,13 @@
+{% extends "tavern_app/base.html" %}
+{% block title %}
+    {{ master_session.title }}
+{% endblock %}
+{% block content %}
+    <h2><p>{{ master_session.title }}</p></h2>
+    <h3>Opis:</h3>
+    <p>{{ master_session.description }}</p>
+    <h3>Gra tylko dla dorosłych: {{ master_session.adult_only }}</h3>
+    <h3>Trudność sesji: {{ master_session.difficulty }}</h3>
+    <h3>Liczba graczy: {{ master_session.number_of_players }}</h3>
+    <h3>Inne informacje: {{ gamer_session.other_requirements }}</h3>
+{% endblock %}

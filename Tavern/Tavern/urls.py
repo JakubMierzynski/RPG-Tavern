@@ -15,7 +15,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from tavern_app.views import MainPage, SignUpUserView, LoginView, logout_view, FindUserView, UserDetailsView, CreateMasterSessionView, CreateGamerSessionView
+from tavern_app.views import MainPage, \
+    SignUpUserView,\
+    LoginView,\
+    logout_view,\
+    FindUserView,\
+    UserDetailsView,\
+    CreateMasterSessionView,\
+    CreateGamerSessionView,\
+    CreateSessionBaseView,\
+    AllSessionsView,\
+    MasterSessionDetailsView,\
+    GamerSessionDetailsView,\
+    FindSessionView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,7 +38,12 @@ urlpatterns = [
     path("log-out/", logout_view, name="logout"),
     path("find-user/", FindUserView.as_view(), name="find-user"),
     path("user/<int:user_id>/", UserDetailsView.as_view(), name="user-details"),
+    path("create-session/", CreateSessionBaseView.as_view(), name="create-session-base"),
     path("create-master-session/", CreateMasterSessionView.as_view(), name="create-master-session"),
-    path("create-gamer-session/", CreateGamerSessionView.as_view(), name="create-gamer-session")
+    path("create-gamer-session/", CreateGamerSessionView.as_view(), name="create-gamer-session"),
+    path("sessions/", AllSessionsView.as_view(), name="sessions"),
+    path("master-session-details/<int:session_id>/", MasterSessionDetailsView.as_view(), name="master-session-details"),
+    path("gamer-session-details/<int:session_id>/", GamerSessionDetailsView.as_view(), name="gamer-session-details"),
+    path("find-session/", FindSessionView.as_view(), name="find-session"),
 
 ]
