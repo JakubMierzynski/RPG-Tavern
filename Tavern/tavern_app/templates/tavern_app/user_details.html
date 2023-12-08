@@ -6,5 +6,32 @@
     <h3><p>{{ user.username }}</p></h3>
     <h3>Opis:</h3>
     <p>{{ user.profile.description }}</p>
-    <h3><p>SESJE UŻYTKOWNIKA:</p></h3>
+    <h3><p>NADCHODZĄCE SESJE:</p></h3>
+
+    {% if master_sessions and gamer_sessions %}
+    <h3>JAKO GRACZ:</h3>
+        {% for session in master_sessions %}
+            <h3><a href="/master-session-details/{{ session.id }}">{{ session.title }}</a></h3>
+        {% endfor %}
+    <h3>JAKO MISTRZ</h3>
+        {% for session in gamer_sessions %}
+            <h3><a href="/gamer-session-details/{{ session.id }}">{{ session.title }}</a></h3>
+        {% endfor %}
+    {% endif %}
+
+    {% if gamer_sessions and not master_sessions %}
+        <h3>JAKO MISTRZ:</h3>
+        {% for session in gamer_sessions %}
+            <h3><a href="/master-session-details/{{ session.id }}">{{ session.title }}</a></h3>
+        {% endfor %}
+    {% endif %}
+
+    {% if master_sessions and not gamer_sessions %}
+        <h3>JAKO GRACZ:</h3>
+        {% for session in master_sessions %}
+            <h3><a href="/master-session-details/{{ session.id }}">{{ session.title }}</a></h3>
+        {% endfor %}
+    {% endif %}
+
+
 {% endblock %}

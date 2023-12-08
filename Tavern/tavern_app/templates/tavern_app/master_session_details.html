@@ -4,10 +4,28 @@
 {% endblock %}
 {% block content %}
     <h2><p>{{ master_session.title }}</p></h2>
+    <h3>Data i godzina: {{ master_session.date }} {{ master_session.time }}</h3>
     <h3>Opis:</h3>
     <p>{{ master_session.description }}</p>
     <h3>Gra tylko dla dorosłych: {{ master_session.adult_only }}</h3>
     <h3>Trudność sesji: {{ master_session.difficulty }}</h3>
-    <h3>Liczba graczy: {{ master_session.number_of_players }}</h3>
     <h3>Inne informacje: {{ gamer_session.other_requirements }}</h3>
+        {% if master_session.counter_of_players < master_session.number_of_players %}
+            <h3>Liczba graczy: {{ master_session.counter_of_players }}/{{ master_session.number_of_players }} <a href="/add-attendance-ms/{{master_session.id}}/">DOŁĄCZ</a></h3>
+            <h3>Gracze biorący udział w sesji:</h3>
+                <ul>
+                {% for player in players %}
+                    <li><a href="/user/{{ player.user.id }}/">{{ player.user.username }}</a></li>
+                {% endfor %}
+                </ul>
+
+        {% else %}
+            <h3>Liczba graczy: {{ master_session.counter_of_players }}/{{ master_session.number_of_players }}</h3>
+            <h3>Gracze biorący udział w sesji:</h3>
+                <ul>
+                {% for player in players %}
+                    <li><a href="/user/{{ player.user.id }}/">{{ player.user.username }}</a></li>
+                {% endfor %}
+                </ul>
+        {% endif %}
 {% endblock %}

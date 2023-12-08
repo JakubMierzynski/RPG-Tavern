@@ -33,6 +33,14 @@
 <body>
     <p class="tavern">TAWERNA RPG</p>
 
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
     <div class="sidenav">
         <a href="/">Strona główna</a>
         <a href="/sessions/">Wszystkie sesje</a>

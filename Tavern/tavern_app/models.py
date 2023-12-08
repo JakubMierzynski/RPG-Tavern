@@ -53,11 +53,26 @@ class MasterSession(models.Model):
     title = models.CharField(max_length=150, blank=False, verbose_name="Tytuł sesji")
     date = models.DateField(blank=False, verbose_name="Data sesji")
     time = models.TimeField(blank=False, verbose_name="Godzina sesji")
+    counter_of_players = models.IntegerField(default=0)
     number_of_players = models.IntegerField(choices=NUMBER_OF_PLAYERS_CHOICES, blank=False, verbose_name="Liczba poszukiwanych graczy")
     description = models.TextField(blank=False, verbose_name="Opis sesji")
     difficulty = models.CharField(max_length=50, choices=DIFFICULTY_CHOICES, blank=False, verbose_name="Poziom trudności przygody")
     adult_only = models.CharField(max_length=50, choices= ADULT_CHOICES, blank=False, verbose_name="Sesja tylko dla dorosłych")
     other_requirements = models.TextField(blank=False, verbose_name="Inne wymagania")
+
+    def add_user_to_list_of_attendeesMS(self, user):
+        registration = MasterSessionRegistration.objects.create(user=user,
+                                                                session=self)
+
+    def remove_user_from_list_of_attendeesMS(self, user):
+        registration = MasterSessionRegistration.objects.get(user=user,
+                                                             session=self)
+        registration.delete()
+
+
+class MasterSessionRegistration(models.Model):
+    session = models.ForeignKey(MasterSession, verbose_name='Sesja', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name='Uczestnik', on_delete=models.CASCADE)
 
 
 class GamerSession(models.Model):
@@ -72,3 +87,18 @@ class GamerSession(models.Model):
     adult_only = models.CharField(max_length=50, choices=ADULT_CHOICES, blank=False, verbose_name="Sesja tylko dla dorosłych")
     master_requirements = models.TextField(blank=False, verbose_name="Wymagania dotyczące mistrza gry")
     other_requirements = models.TextField(blank=False, verbose_name="Inne wymagania")
+    is_master_chosen = models.BooleanField(default=False)
+
+    def add_user_to_list_of_attendeesGS(self, user):
+        registration = GamerSessionRegistration.objects.create(user=user,
+                                                               session=self)
+
+    def remove_user_from_list_of_attendeesGS(self, user):
+        registration = GamerSessionRegistration.objects.get(user=user,
+                                                            session=self)
+        registration.delete()
+
+
+class GamerSessionRegistration(models.Model):
+    session = models.ForeignKey(GamerSession, verbose_name='Sesja', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name='Uczestnik', on_delete=models.CASCADE)

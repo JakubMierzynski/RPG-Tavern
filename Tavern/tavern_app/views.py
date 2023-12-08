@@ -1,12 +1,14 @@
-from django.contrib import messages
 from django.contrib.auth import login, logout
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, FormView
-from tavern_app.models import Profile, MasterSession, GamerSession
+from tavern_app.models import Profile, MasterSession, GamerSession, MasterSessionRegistration, GamerSessionRegistration
 from tavern_app.forms import UserForm, ProfileForm, User, LoginForm, FindUserForm, MasterSessionForm, GamerSessionForm, FindSessionForm
 from datetime import datetime
+from django.contrib import messages
+
 
 
 
@@ -120,9 +122,73 @@ class FindUserView(View):
 class UserDetailsView(View):
     def get(self, request, user_id):
         user = User.objects.get(pk=user_id)
-        # Później dodane zostaną tu sesje do których się będziemy odwoływać
 
-        return render(request, "tavern_app/user_details.html", context={"user": user})
+        #Jeśli i mistrz i gracz:
+        if MasterSessionRegistration.objects.filter(user_id=user_id).exists() and GamerSessionRegistration.objects.filter(user_id=user_id).exists():
+            master_sessions_registered = MasterSessionRegistration.objects.filter(user_id=user_id)
+            gamer_sessions_registered = GamerSessionRegistration.objects.filter(user_id=user_id)
+
+            master_sessions_active_only = []
+            gamer_sessions_active_only = []
+
+            for session in master_sessions_registered:
+                date = session.session.date
+                time = session.session.time
+
+                combined = datetime.combine(date, time)
+
+                if combined > datetime.now():
+                    master_sessions_active_only.append(session.session)
+
+            for session in gamer_sessions_registered:
+                date = session.session.date
+                time = session.session.time
+
+                combined = datetime.combine(date, time)
+
+                if combined > datetime.now():
+                   gamer_sessions_active_only.append(session.session)
+
+            return render(request, "tavern_app/user_details.html", context={"user": user,
+                                                                            "master_sessions": master_sessions_active_only,
+                                                                            "gamer_sessions": gamer_sessions_active_only})
+
+        #Jeśli tylko mistrz
+        if not MasterSessionRegistration.objects.filter(user_id=user_id).exists() and GamerSessionRegistration.objects.filter(user_id=user_id).exists():
+            gamer_sessions_registered = GamerSessionRegistration.objects.filter(user_id=user_id)
+            gamer_sessions_active_only = []
+
+            for session in gamer_sessions_registered:
+                date = session.session.date
+                time = session.session.time
+
+                combined = datetime.combine(date, time)
+
+                if combined > datetime.now():
+                   gamer_sessions_active_only.append(session.session)
+
+            return render(request, "tavern_app/user_details.html", context={"user": user,
+                                                                            "gamer_sessions": gamer_sessions_active_only})
+
+        # Jeśli tylko gracz
+        if not GamerSessionRegistration.objects.filter(user_id=user_id).exists() and MasterSessionRegistration.objects.filter(user_id=user_id).exists():
+            master_sessions_registered = MasterSessionRegistration.objects.filter(user_id=user_id)
+            master_sessions_active_only = []
+
+            for session in master_sessions_registered:
+                date = session.session.date
+                time = session.session.time
+
+                combined = datetime.combine(date, time)
+
+                if combined > datetime.now():
+                    master_sessions_active_only.append(session.session)
+
+            return render(request, "tavern_app/user_details.html", context={"user": user,
+                                                                            "master_sessions": master_sessions_active_only})
+
+        else:
+            HttpResponse("No idea")
 
 
 class CreateSessionBaseView(View):
@@ -217,14 +283,22 @@ class AllSessionsView(View):
         master_sessions_active_only = []
 
         for session in all_gamer_sessions:
-            if session.date > datetime.now().date() or session.date == datetime.now().date():
-                if session.time > datetime.now().time():
-                    gamer_sessions_active_only.append(session)
+            date = session.date
+            time = session.time
+
+            combined = datetime.combine(date, time)
+
+            if combined > datetime.now():
+                gamer_sessions_active_only.append(session)
 
         for session in all_master_sessions:
-            if session.date > datetime.now().date() or session.date == datetime.now().date():
-                if session.time > datetime.now().time():
-                    master_sessions_active_only.append(session)
+            date = session.date
+            time = session.time
+
+            combined = datetime.combine(date, time)
+
+            if combined > datetime.now():
+                master_sessions_active_only.append(session)
 
         return render(request, "tavern_app/all_sessions.html", context={"master_sessions": master_sessions_active_only,
                                                                         "gamer_sessions": gamer_sessions_active_only})
@@ -234,13 +308,27 @@ class MasterSessionDetailsView(View):
     def get(self, request, session_id):
         session = MasterSession.objects.get(pk=session_id)
 
-        return render(request, "tavern_app/master_session_details.html", context={"master_session": session})
+        if MasterSessionRegistration.objects.filter(session=session_id).exists():
+            players = MasterSessionRegistration.objects.filter(session=session_id)
+
+            return render(request, "tavern_app/master_session_details.html", context={"master_session": session,
+                                                                                      "players": players})
+        else:
+            return render(request, "tavern_app/master_session_details.html", context={"master_session": session})
 
 
 class GamerSessionDetailsView(View):
     def get(self, request, session_id):
         session = GamerSession.objects.get(pk=session_id)
-        return render(request, "tavern_app/gamer_session_details.html", context={"gamer_session": session})
+
+        if GamerSessionRegistration.objects.filter(session= session_id).exists():
+            found_session = GamerSessionRegistration.objects.get(session=session_id)
+            master = User.objects.get(id=found_session.user_id)
+
+            return render(request, "tavern_app/gamer_session_details.html", context={"gamer_session": session,
+                                                                                     "master": master})
+        else:
+            return render(request, "tavern_app/gamer_session_details.html", context={"gamer_session": session})
 
 
 class FindSessionView(View):
@@ -261,15 +349,19 @@ class FindSessionView(View):
             if_master = form.cleaned_data["if_master"]
             active_only = form.cleaned_data["if_active_only"]
 
-            if if_gamer:
+            if if_master:
                 if active_only:
                     gamer_sessions = GamerSession.objects.filter(title__icontains=title).order_by("date", "time")
                     gamer_sessions_active_only = []
 
                     for session in gamer_sessions:
-                        if session.date > datetime.now().date() or session.date == datetime.now().date():
-                            if session.time > datetime.now().time():
-                                gamer_sessions_active_only.append(session)
+                        date = session.date
+                        time = session.time
+
+                        combined = datetime.combine(date, time)
+
+                        if combined > datetime.now():
+                            gamer_sessions_active_only.append(session)
 
                     if len(gamer_sessions) == 0:
                         ctx = {"not_found": True,
@@ -303,15 +395,19 @@ class FindSessionView(View):
 
                     return render(request, "tavern_app/find_session.html", ctx)
 
-            if if_master:
+            if if_gamer:
                 if active_only:
                     master_sessions = MasterSession.objects.filter(title__icontains=title).order_by("date", "time")
                     master_sessions_active_only = []
 
                     for session in master_sessions:
-                        if session.date > datetime.now().date() or session.date == datetime.now().date():
-                            if session.time > datetime.now().time():
-                                master_sessions_active_only.append(session)
+                        date = session.date
+                        time = session.time
+
+                        combined = datetime.combine(date, time)
+
+                        if combined > datetime.now():
+                            master_sessions_active_only.append(session)
 
                     if len(master_sessions) == 0:
                         ctx = {"not_found": True,
@@ -349,3 +445,47 @@ class FindSessionView(View):
                         return render(request, "tavern_app/find_session.html", ctx)
         else:
             return render(request, "tavern_app/find_user.html", context={"form": form})
+
+
+def event_add_attendanceMS(request, session_id):
+    this_event = MasterSession.objects.get(pk=session_id)
+
+    if this_event.counter_of_players < this_event.number_of_players:
+        if MasterSessionRegistration.objects.filter(session= session_id, user_id=request.user.id).exists():
+            messages.info(request, 'Bierzesz już udział w tej sesji')
+            return redirect('master-session-details', session_id=session_id)
+        else:
+            this_event.add_user_to_list_of_attendeesMS(user=request.user)
+            this_event.counter_of_players += 1
+            this_event.save()
+
+            messages.info(request, 'Udało Ci się dołączyć do sesji')
+            return redirect('master-session-details', session_id=session_id)
+
+    else:
+        messages.info(request, 'Lista graczy pełna. Nie możesz dołączyć do tej sesji')
+        return redirect('master-session-details', session_id=session_id)
+
+
+# def event_cancel_attendanceMS(request, session_id):
+#     this_event = MasterSession.objects.get(pk=session_id)
+#     this_event.remove_user_from_list_of_attendees(request.user)
+#     return redirect('master-session-details', session_id=session_id)
+
+
+def event_add_attendanceGS(request, session_id):
+    this_event = GamerSession.objects.get(pk=session_id)
+
+    if this_event.is_master_chosen is False:
+        this_event.add_user_to_list_of_attendeesGS(user=request.user)
+        this_event.is_master_chosen = True
+        this_event.save()
+
+        messages.info(request, 'Zostałeś Mistrzem Gry tej sesji')
+        return redirect('gamer-session-details', session_id=session_id)
+
+
+# def event_cancel_attendanceGS(request, session_id):
+#     this_event = GamerSession.objects.get(pk=session_id)
+#     this_event.remove_user_from_list_of_attendees(request.user)
+#     return redirect('gamer-session-details', session_id=session_id)
