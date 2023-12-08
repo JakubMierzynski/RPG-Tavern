@@ -210,11 +210,24 @@ class CreateGamerSessionView(View):
 
 class AllSessionsView(View):
     def get(self, request):
-        all_master_sessions = MasterSession.objects.all()
-        all_gamer_sessions = GamerSession.objects.all()
+        all_master_sessions = MasterSession.objects.all().order_by("date", "time")
+        all_gamer_sessions = GamerSession.objects.all().order_by("date", "time")
 
-        return render(request, "tavern_app/all_sessions.html", context={"master_sessions": all_master_sessions,
-                                                                        "gamer_sessions": all_gamer_sessions})
+        gamer_sessions_active_only = []
+        master_sessions_active_only = []
+
+        for session in all_gamer_sessions:
+            if session.date > datetime.now().date() or session.date == datetime.now().date():
+                if session.time > datetime.now().time():
+                    gamer_sessions_active_only.append(session)
+
+        for session in all_master_sessions:
+            if session.date > datetime.now().date() or session.date == datetime.now().date():
+                if session.time > datetime.now().time():
+                    master_sessions_active_only.append(session)
+
+        return render(request, "tavern_app/all_sessions.html", context={"master_sessions": master_sessions_active_only,
+                                                                        "gamer_sessions": gamer_sessions_active_only})
 
 
 class MasterSessionDetailsView(View):
@@ -250,7 +263,7 @@ class FindSessionView(View):
 
             if if_gamer:
                 if active_only:
-                    gamer_sessions = GamerSession.objects.filter(title__icontains=title)
+                    gamer_sessions = GamerSession.objects.filter(title__icontains=title).order_by("date", "time")
                     gamer_sessions_active_only = []
 
                     for session in gamer_sessions:
@@ -274,7 +287,7 @@ class FindSessionView(View):
                         return render(request, "tavern_app/find_session.html", ctx)
 
                 else:
-                    gamer_sessions = GamerSession.objects.filter(title__icontains=title)
+                    gamer_sessions = GamerSession.objects.filter(title__icontains=title).order_by("date", "time")
                     request_method = request.method
 
                     if len(gamer_sessions) == 0:
@@ -292,7 +305,7 @@ class FindSessionView(View):
 
             if if_master:
                 if active_only:
-                    master_sessions = MasterSession.objects.filter(title__icontains=title)
+                    master_sessions = MasterSession.objects.filter(title__icontains=title).order_by("date", "time")
                     master_sessions_active_only = []
 
                     for session in master_sessions:
@@ -317,7 +330,7 @@ class FindSessionView(View):
 
                 else:
 
-                    master_sessions = MasterSession.objects.filter(title__icontains=title)
+                    master_sessions = MasterSession.objects.filter(title__icontains=title).order_by("date", "time")
 
                     if len(master_sessions) == 0:
                         ctx = {"not_found": True,

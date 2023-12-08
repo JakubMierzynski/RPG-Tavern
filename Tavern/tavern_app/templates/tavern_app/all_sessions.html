@@ -6,6 +6,8 @@
         <th>Tytuł kampanii</th>
         <th>Opis kampanii</th>
         <th>Liczba graczy</th>
+        <th>Data</th>
+        <th>Godzina</th>
       </tr>
 
     {% for session in master_sessions %}
@@ -13,6 +15,8 @@
             <td><a href="/master-session-details/{{ session.id }}/">{{ session.title }}</a></td>
             <td>{{ session.description}}</td>
             <td>{{ session.number_of_players }}</td>
+            <td>{{ session.date }}</td>
+            <td>{{ session.time }}</td>
         </tr>
     {% endfor %}
     </table>
@@ -22,12 +26,17 @@
       <tr>
         <th>Tytuł kampanii</th>
         <th>Opis kampanii</th>
+          <th>Data</th>
+        <th>Godzina</th>
       </tr>
     {% for session in gamer_sessions %}
         <tr>
             <td><a href="/gamer-session-details/{{ session.id }}/">{{ session.title }}</a></td>
             <td>{{ session.description}}</td>
+            <td>{{ session.date }}</td>
+            <td>{{ session.time }}</td>
         </tr>
     {% endfor %}
+    </table>
 
 {% endblock %}
