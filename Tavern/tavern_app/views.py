@@ -277,7 +277,7 @@ class CreateGamerSessionView(View):
 class AllSessionsView(View):
     def get(self, request):
         all_master_sessions = MasterSession.objects.all().order_by("date", "time")
-        all_gamer_sessions = GamerSession.objects.all().order_by("date", "time")
+        all_gamer_sessions = GamerSession.objects.filter(is_master_chosen=False).order_by("date", "time")
 
         gamer_sessions_active_only = []
         master_sessions_active_only = []
