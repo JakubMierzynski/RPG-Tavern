@@ -1,0 +1,24 @@
+{% extends "tavern_app/base.html" %}
+{% block title %}
+    {{ gamer_session.title }}
+{% endblock %}
+{% block content %}
+    <div class="scroll">
+        <p class="tavern-content">{{ gamer_session.title }}</p>
+        <p>Data i godzina: {{ gamer_session.date }} {{ gamer_session.time }}</p>
+        <p>Opis:</p>
+        <p>{{ gamer_session.description }}</p>
+        <p>Gra tylko dla dorosłych: {{ gamer_session.adult_only }}</p>
+        <p>Trudność sesji: {{ gamer_session.difficulty }}</p>
+        <p>Oczekiwania wobec mistrza gry: {{ gamer_session.master_requirements }}</p>
+        <p>Inne informacje: {{ gamer_session.other_requirements }}</p>
+        {% if gamer_session.is_master_chosen %}
+            <p>Mistrz gry dla tej sesji: <a href="/user/{{ master.id }}">{{ master.username }}</a></p>
+        {% else %}
+            <p>Mistrz gry dla tej sesji nie został wybrany. <a href="/add-attendance-gs/{{gamer_session.id}}/">ZOSTAN MISTRZEM GRY DLA TEJ SESJI</a> </p>
+        {% endif %}
+        {% if gamer_session.owner == request.user %}
+            <a class="tavern-details" href="/edit-gamer-session/{{ gamer_session.id }}/">EDYTUJ SESJE</a>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -4,21 +4,40 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>TAWERNA RPG</title>
+  <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet", href={% static 'admin/css/mystyle.css' %}>
+{#    <style type="text/css">#}
+    </style>
 </head>
 
-{#<body style="background-image: url('{% static 'admin/img/background.png' %}');">#}
+<body style="background-image: url('{% static 'admin/img/background.png' %}');">
+{#<body style="background-image: url('https://st2.depositphotos.com/4393299/6988/v/450/depositphotos_69889025-stock-illustration-fencing-doodle-seamless-pattern-background.jpg');">#}
+
 <body>
     <p class="tavern">TAWERNA RPG</p>
+        <div class="sidenav">
+            <a href="/">Strona główna</a>
+            <a href="/sessions/">Wszystkie sesje</a>
+            <a href="/create-session/">Stwórz sesję</a>
+            <a href="/find-session/">Znajdź sesję</a>
+            <a href="/find-user/">Znajdź użytkownika</a>
+            {% if user.is_authenticated %}
+                <a href="/user/{{ request.user.id }}/">Mój profil</a>
+                <a href="/log-out/">Wyloguj się</a>
+            {% else %}
+                <a href="/log-in/">Zaloguj się</a>
+            {% endif %}
+        </div>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
     {% block content %}
-        {% if user.is_authenticated %}
-            <h3>Zalogowano jako: {{ user.username }}</h3>
-            <h4><a href="/logout/">Wyloguj</a></h4>
-        {% endif %}
-        {% if not user.is_authenticated %}
-            <h3><a href="/login/">Zaloguj</a></h3>
-        {% endif %}
     {% endblock %}
     {% block foot %}
     {% endblock %}

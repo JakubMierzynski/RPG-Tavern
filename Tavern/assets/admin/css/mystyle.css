@@ -54,22 +54,23 @@
   position: relative;
 }
 
+.carousel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 300%; /* Szerokość całej karuzeli, zależna od liczby zdjęć */
+  transition: transform 0.5s ease-in-out;
+}
+
 .carousel ul li {
-  display: none; /* Ukrycie wszystkich obrazów początkowo */
+  float: left;
+  width: 33.33%; /* Dla 3 zdjęć */
 }
 
-.carousel ul li.active {
-  display: flex; /* Wyświetlenie aktywnego obrazu */
-  justify-content: center;
-  align-items: center;
-  /* inne style, jeśli potrzebne */
-}
-
-.carousel ul li img {
-  width: 700px; /* Dostosuj szerokość zdjęć do preferowanego rozmiaru */
-  height: auto; /* Ustawienie auto dla wysokości zachowa proporcje */
-  border-radius: 15px; /* Dodaj zaokrąglone rogi */
-
+/* Styl dla zdjęć */
+.carousel img {
+  width: 100%; /* Zdjęcia wypełniające dostępne miejsce */
+  height: auto;
 }
 
 .padding-large {
@@ -103,6 +104,12 @@
   --yellow: #ffc107;
   --green: #1e7e34;
   font-size: 16px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 html {
@@ -165,41 +172,11 @@ td {
     color:#FFFFFF;
 }
 
-.prev-slide, .next-slide {
-  background: none;
-  border: none;
-  cursor: pointer;
-    font-family: Trattatello;
-    font-size: 100px;
-    font-weight: 700;
-    color: yellow;
-    -webkit-text-stroke: 2px black;
-  /* Dodanie stylów wizualnych, takich jak wielkość, kolor itp. dla strzałek */
-}
-
-.carousel-container {
-  position: relative;
-}
-
-.carousel-controls {
-  position: absolute;
-  top: 50%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  transform: translateY(-50%);
-}
-
-body {
-  overflow-x: hidden;
-}
-
 .scroll {
-    position: absolute;
+     position: absolute;
   left: 250px;
     right: 250px;
-    top: 400px;
+    top: 250px;
   background-image: url("https://e0.pxfuel.com/wallpapers/773/471/desktop-wallpaper-old-paper-background-full-ancient-scroll.jpg");
 }
 

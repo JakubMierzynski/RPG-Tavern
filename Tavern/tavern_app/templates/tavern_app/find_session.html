@@ -1,0 +1,37 @@
+{% extends "tavern_app/base.html" %}
+{% block title %}
+    Znajdź Sesję
+{% endblock %}
+{% block content %}
+    <div class="scroll">
+        <p class="tavern-content">Wyszukaj sesję:</p>
+
+        <form action="" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">SZUKAJ</button>
+        </form>
+
+    {% if gamer_sessions %}
+        <p class="tavern-content">Znalezione sesje ze słowem "{{ title }}":</p>
+            <ul>
+                {% for session in gamer_sessions %}
+                    <li><a class="tavern-details" href="/gamer-session-details/{{ session.id }}/">{{ session.title }}</a> <p class="tavern-details">Data: {{ session.date }} Godzina {{ session.time }}</p></li>
+                {% endfor %}
+            </ul>
+    {% endif %}
+
+    {% if master_sessions %}
+        <p class="tavern-content">Znalezione sesje ze słowem "{{ title }}":</p>
+            <ul>
+                {% for session in master_sessions %}
+                    <li><a class="tavern-details" href="/master-session-details/{{ session.id }}/">{{ session.title }}</a><p class="tavern-details">Data: {{ session.date }} Godzina {{ session.time }}</p></li>
+                {% endfor %}
+            </ul>
+    {% endif %}
+
+    {% if not_found %}
+        <p class="tavern-content">Nie znaleziono sesji ze słowem kluczowym "{{ title }}"</p>
+    {% endif %}
+    </div>
+{% endblock %}

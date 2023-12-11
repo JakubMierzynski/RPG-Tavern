@@ -1,0 +1,38 @@
+{% extends "tavern_app/base.html" %}
+{% block title %}
+    {{ master_session.title }}
+{% endblock %}
+{% block content %}
+    <div class="scroll">
+    <p class="tavern-content">{{ master_session.title }}</p>
+    <p>Data i godzina: {{ master_session.date }} {{ master_session.time }}</p>
+    <p>Mistrz gry: <a href="/user/{{ master_session.owner.id }}/">{{ master_session.owner }}</a></p>
+        <p>Opis:</p>
+    <p>{{ master_session.description }}</p>
+    <p>Więcej:</p>
+    <p>Gra tylko dla dorosłych: {{ master_session.adult_only }}</p>
+    <p>Trudność sesji: {{ master_session.difficulty }}</p>
+    <p>Inne informacje: {{ master_session.other_requirements }}</p>
+        {% if master_session.counter_of_players < master_session.number_of_players %}
+            <p>Liczba graczy: {{ master_session.counter_of_players }}/{{ master_session.number_of_players }}<a href="/add-attendance-ms/{{master_session.id}}/">DOŁĄCZ</a></p>
+            <p>Gracze biorący udział w sesji:</p>
+                <ul>
+                {% for player in players %}
+                    <li><a href="/user/{{ player.user.id }}/"><p>{{ player.user.username }}</p></a></li>
+                {% endfor %}
+                </ul>
+
+        {% else %}
+            <h3>Liczba graczy: {{ master_session.counter_of_players }}/{{ master_session.number_of_players }}</h3>
+            <h3>Gracze biorący udział w sesji:</h3>
+                <ul>
+                {% for player in players %}
+                    <li><a href="/user/{{ player.user.id }}/">{{ player.user.username }}</a></li>
+                {% endfor %}
+                </ul>
+        {% endif %}
+    {% if master_session.owner == request.user %}
+        <a class="tavern-details" href="/edit-master-session/{{ master_session.id }}/">EDYTUJ SESJE</a>
+    {% endif %}
+    </div>
+{% endblock %}
