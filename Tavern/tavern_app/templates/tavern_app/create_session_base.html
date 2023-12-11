@@ -1,5 +1,8 @@
 {% extends "tavern_app/base.html" %}
 {% block content %}
-    <p><h2><a href="/create-master-session/">Jestem Mistrzem Gry i poszukuję graczy</a></h2></p>
-    <p><h2><a href="/create-gamer-session/">Poszukiwacze przygód poszukują Mistrza Gry</a></h2></p>
+    <div class="scroll">
+    <a class="tavern-content" href="/create-master-session/">=>Jestem Mistrzem Gry i poszukuję graczy</a>
+    <p class="tavern-content">lub</p>
+    <a class="tavern-content" href="/create-gamer-session/">=>Poszukiwacze przygód poszukują Mistrza Gry</a>
+    </div>
 {% endblock %}

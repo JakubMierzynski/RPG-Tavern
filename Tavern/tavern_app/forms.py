@@ -138,3 +138,53 @@ class FindSessionForm(forms.Form):
 
         if not if_gamer and not if_master:
             raise forms.ValidationError("Wybierz jedną z opcji wyszukiwania")
+
+
+class EditMasterSessionForm(forms.ModelForm):
+    class Meta:
+        model = MasterSession
+        fields = ('title', 'date', 'time', 'number_of_players', 'description', 'difficulty', 'adult_only', 'other_requirements')
+
+        widgets = {
+            'time': forms.TimeInput(attrs={'type': 'time'}),
+            'date': SelectDateWidget(years=range(2023, 2026))
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        date = cleaned_data.get("date")
+        time = cleaned_data.get("time")
+        today = date.today()
+
+        print(type(date))
+        print(type(today))
+
+        if date < today:
+            raise forms.ValidationError("Sesja nie może się odbyć w przeszłości")
+
+        if time < datetime.now().time():
+            raise forms.ValidationError("Godzina sesji jest z przeszłości")
+
+
+class EditGamerSessionForm(forms.ModelForm):
+    class Meta:
+        model = GamerSession
+        fields = ('title', 'date', 'time', 'description', 'difficulty', 'adult_only', 'master_requirements', 'other_requirements')
+
+        widgets = {
+            'time': forms.TimeInput(attrs={'type': 'time'}),
+            'date': SelectDateWidget(years=range(2023, 2026))
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        date = cleaned_data.get("date")
+        time = cleaned_data.get("time")
+        today = date.today()
+
+
+        if date < today:
+            raise forms.ValidationError("Sesja nie może się odbyć w przeszłości")
+
+        if time < datetime.now().time():
+            raise forms.ValidationError("Godzina sesji jest z przeszłości")

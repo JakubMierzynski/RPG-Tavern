@@ -1,1 +1,99 @@
 {% extends "tavern_app/base.html" %}
+{% load static %}
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>TAWERNA RPG</title>
+        rel="stylesheet">
+    <link rel="stylesheet", href={% static 'admin/css/mystyle.css' %}>
+</head>
+
+<body style="background-image: url('{% static 'admin/img/background.png' %}');">
+
+    <p class="tavern">TAWERNA RPG</p>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div class="sidenav">
+        <a href="/">Strona główna</a>
+        <a href="/sessions/">Wszystkie sesje</a>
+        <a href="/create-session/">Stwórz sesję</a>
+        <a href="/find-session/">Znajdź sesję</a>
+        <a href="/find-user/">Znajdź użytkownika</a>
+        {% if user.is_authenticated %}
+            <a href="/my-profile/{{ user.id }}/">Mój profil</a>
+            <a href="/log-out/">Wyloguj się</a>
+        {% else %}
+            <a href="/log-in/">Zaloguj się</a>
+        {% endif %}
+    </div>
+
+{% block content %}
+      <p class="tavern-content">PRZEŻYWAJ NIEZAPOMNIANE PRZYGODY W SESJACH RPG</p>
+
+    <div class="carousel-container">
+        <div class="carousel-controls">
+          <button class="prev-slide" onclick="slidePrev()"><</button>
+          <button class="next-slide" onclick="slideNext()">></button>
+        </div>
+  <div class="carousel">
+    <ul>
+      <li class="carousel-item active"><img src="/static/admin/img/1.png"></li>
+      <li class="carousel-item"><img src="/static/admin/img/2.png"></li>
+      <li class="carousel-item"><img src="/static/admin/img/3.png"></li>
+      <li class="carousel-item"><img src="/static/admin/img/4.png"></li>
+      <li class="carousel-item"><img src="/static/admin/img/5.png"></li>
+      <li class="carousel-item"><img src="/static/admin/img/6.png"></li>
+      <li class="carousel-item"><img src="/static/admin/img/7.png"></li>
+    </ul>
+  </div>
+    </div>
+
+  <script>
+    let texts = document.querySelectorAll('.carousel ul li');
+    let currentIndex = 0;
+    let intervalTime = 10000; // Czas w milisekundach (10 sekund)
+    let autoSlide = setInterval(slideNext, intervalTime);
+
+    function showSlide(index) {
+  texts.forEach((text, i) => {
+    if (i === index) {
+      text.classList.add('active'); // Dodanie klasy aktywnej dla wybranego obrazu
+    } else {
+      text.classList.remove('active'); // Usunięcie klasy aktywnej dla pozostałych obrazów
+    }
+  });
+}
+
+    function slideNext() {
+      if (currentIndex < texts.length - 1) {
+        currentIndex++;
+      } else {
+        currentIndex = 0;
+      }
+      showSlide(currentIndex);
+      clearInterval(autoSlide);
+      autoSlide = setInterval(slideNext, intervalTime);
+    }
+
+    function slidePrev() {
+      if (currentIndex > 0) {
+        currentIndex--;
+      } else {
+        currentIndex = texts.length - 1;
+      }
+      showSlide(currentIndex);
+      clearInterval(autoSlide);
+      autoSlide = setInterval(slideNext, intervalTime);
+    }
+  </script>
+
+    <p class="tavern-content">Tawerna RPG to miejsce w którym możesz zorganizować własną sesję RPG lub dołączyć wraz
+        z drużyną do wielkiej przygody organizowanej przez mistrza gry </p>
+{% endblock %}

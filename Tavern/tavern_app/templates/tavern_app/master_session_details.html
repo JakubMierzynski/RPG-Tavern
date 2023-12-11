@@ -3,19 +3,22 @@
     {{ master_session.title }}
 {% endblock %}
 {% block content %}
-    <h2><p>{{ master_session.title }}</p></h2>
-    <h3>Data i godzina: {{ master_session.date }} {{ master_session.time }}</h3>
-    <h3>Opis:</h3>
+    <div class="scroll">
+    <p class="tavern-content">{{ master_session.title }}</p>
+    <p>Data i godzina: {{ master_session.date }} {{ master_session.time }}</p>
+    <p>Mistrz gry: <a href="/user/{{ master_session.owner.id }}/">{{ master_session.owner }}</a></p>
+        <p>Opis:</p>
     <p>{{ master_session.description }}</p>
-    <h3>Gra tylko dla dorosłych: {{ master_session.adult_only }}</h3>
-    <h3>Trudność sesji: {{ master_session.difficulty }}</h3>
-    <h3>Inne informacje: {{ gamer_session.other_requirements }}</h3>
+    <p>Więcej:</p>
+    <p>Gra tylko dla dorosłych: {{ master_session.adult_only }}</p>
+    <p>Trudność sesji: {{ master_session.difficulty }}</p>
+    <p>Inne informacje: {{ master_session.other_requirements }}</p>
         {% if master_session.counter_of_players < master_session.number_of_players %}
-            <h3>Liczba graczy: {{ master_session.counter_of_players }}/{{ master_session.number_of_players }} <a href="/add-attendance-ms/{{master_session.id}}/">DOŁĄCZ</a></h3>
-            <h3>Gracze biorący udział w sesji:</h3>
+            <p>Liczba graczy: {{ master_session.counter_of_players }}/{{ master_session.number_of_players }}<a href="/add-attendance-ms/{{master_session.id}}/">DOŁĄCZ</a></p>
+            <p>Gracze biorący udział w sesji:</p>
                 <ul>
                 {% for player in players %}
-                    <li><a href="/user/{{ player.user.id }}/">{{ player.user.username }}</a></li>
+                    <li><a href="/user/{{ player.user.id }}/"><p>{{ player.user.username }}</p></a></li>
                 {% endfor %}
                 </ul>
 
@@ -28,4 +31,8 @@
                 {% endfor %}
                 </ul>
         {% endif %}
+    {% if master_session.owner == request.user %}
+        <a class="tavern-details" href="/edit-master-session/{{ master_session.id }}/">EDYTUJ SESJE</a>
+    {% endif %}
+    </div>
 {% endblock %}

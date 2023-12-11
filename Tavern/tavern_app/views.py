@@ -1,3 +1,6 @@
+import random
+from urllib import request
+
 from django.contrib.auth import login, logout
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -5,9 +8,10 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, FormView
 from tavern_app.models import Profile, MasterSession, GamerSession, MasterSessionRegistration, GamerSessionRegistration
-from tavern_app.forms import UserForm, ProfileForm, User, LoginForm, FindUserForm, MasterSessionForm, GamerSessionForm, FindSessionForm
+from tavern_app.forms import UserForm, ProfileForm, User, LoginForm, FindUserForm, MasterSessionForm, GamerSessionForm, FindSessionForm, EditMasterSessionForm, EditGamerSessionForm
 from datetime import datetime
 from django.contrib import messages
+from random import shuffle
 
 
 
@@ -16,10 +20,28 @@ from django.contrib import messages
 
 # Create your views here.
 
-
 class MainPage(View):
     def get(self, request):
-        return render(request, "tavern_app/mainpage.html")
+        all_sessions = []
+        all_master_sessions = MasterSession.objects.all()
+        all_gamer_sessions = GamerSession.objects.all()
+
+        for session in all_master_sessions:
+            all_sessions.append(session)
+
+        for session in all_gamer_sessions:
+            all_sessions.append(session)
+
+        random.shuffle(all_sessions)
+
+        session1 = all_sessions[0]
+        session2 = all_sessions[1]
+        session3 = all_sessions[2]
+
+        return render(request, "tavern_app/mainpage.html", context={
+            'session1': session1,
+            'session2': session2,
+            'session3': session3})
 
 
 class SignUpUserView(View):
@@ -127,6 +149,8 @@ class UserDetailsView(View):
         if MasterSessionRegistration.objects.filter(user_id=user_id).exists() and GamerSessionRegistration.objects.filter(user_id=user_id).exists():
             master_sessions_registered = MasterSessionRegistration.objects.filter(user_id=user_id)
             gamer_sessions_registered = GamerSessionRegistration.objects.filter(user_id=user_id)
+            owning_master_sessions = MasterSession.objects.filter(owner=user)
+            owning_gamer_sessions = GamerSession.objects.filter(owner=user)
 
             master_sessions_active_only = []
             gamer_sessions_active_only = []
@@ -149,13 +173,32 @@ class UserDetailsView(View):
                 if combined > datetime.now():
                    gamer_sessions_active_only.append(session.session)
 
+            for session in owning_master_sessions:
+                date = session.date
+                time = session.time
+
+                combined = datetime.combine(date, time)
+
+                if combined > datetime.now():
+                    master_sessions_active_only.append(session)
+
+            for session in owning_gamer_sessions:
+                date = session.date
+                time = session.time
+
+                combined = datetime.combine(date, time)
+
+                if combined > datetime.now():
+                    gamer_sessions_active_only.append(session)
+
             return render(request, "tavern_app/user_details.html", context={"user": user,
-                                                                            "master_sessions": master_sessions_active_only,
-                                                                            "gamer_sessions": gamer_sessions_active_only})
+                                                                            "master_sessions": set(master_sessions_active_only),
+                                                                            "gamer_sessions": set(gamer_sessions_active_only)})
 
         #Jeśli tylko mistrz
         if not MasterSessionRegistration.objects.filter(user_id=user_id).exists() and GamerSessionRegistration.objects.filter(user_id=user_id).exists():
             gamer_sessions_registered = GamerSessionRegistration.objects.filter(user_id=user_id)
+            owning_gamer_sessions = GamerSession.objects.filter(owner=user)
             gamer_sessions_active_only = []
 
             for session in gamer_sessions_registered:
@@ -165,14 +208,24 @@ class UserDetailsView(View):
                 combined = datetime.combine(date, time)
 
                 if combined > datetime.now():
-                   gamer_sessions_active_only.append(session.session)
+                    gamer_sessions_active_only.append(session.session)
+
+            for session in owning_gamer_sessions:
+                date = session.date
+                time = session.time
+
+                combined = datetime.combine(date, time)
+
+                if combined > datetime.now():
+                    gamer_sessions_active_only.append(session)
 
             return render(request, "tavern_app/user_details.html", context={"user": user,
-                                                                            "gamer_sessions": gamer_sessions_active_only})
+                                                                            "gamer_sessions": set(gamer_sessions_active_only)})
 
         # Jeśli tylko gracz
         if not GamerSessionRegistration.objects.filter(user_id=user_id).exists() and MasterSessionRegistration.objects.filter(user_id=user_id).exists():
             master_sessions_registered = MasterSessionRegistration.objects.filter(user_id=user_id)
+            owning_master_sessions = MasterSession.objects.filter(owner=user)
             master_sessions_active_only = []
 
             for session in master_sessions_registered:
@@ -184,11 +237,20 @@ class UserDetailsView(View):
                 if combined > datetime.now():
                     master_sessions_active_only.append(session.session)
 
+            for session in owning_master_sessions:
+                date = session.date
+                time = session.time
+
+                combined = datetime.combine(date, time)
+
+                if combined > datetime.now():
+                    master_sessions_active_only.append(session)
+
             return render(request, "tavern_app/user_details.html", context={"user": user,
-                                                                            "master_sessions": master_sessions_active_only})
+                                                                            "master_sessions": set(master_sessions_active_only)})
 
         else:
-            HttpResponse("No idea")
+            return render(request, "tavern_app/user_details.html", context={"user": user})
 
 
 class CreateSessionBaseView(View):
@@ -321,7 +383,7 @@ class GamerSessionDetailsView(View):
     def get(self, request, session_id):
         session = GamerSession.objects.get(pk=session_id)
 
-        if GamerSessionRegistration.objects.filter(session= session_id).exists():
+        if GamerSessionRegistration.objects.filter(session=session_id).exists():
             found_session = GamerSessionRegistration.objects.get(session=session_id)
             master = User.objects.get(id=found_session.user_id)
 
@@ -417,7 +479,7 @@ class FindSessionView(View):
 
                     else:
                         request_method = request.method
-                        ctx = {"gamer_sessions": master_sessions_active_only,
+                        ctx = {"master_sessions": master_sessions_active_only,
                                "request_method": request_method,
                                "title": title,
                                "form": form}
@@ -444,7 +506,7 @@ class FindSessionView(View):
 
                         return render(request, "tavern_app/find_session.html", ctx)
         else:
-            return render(request, "tavern_app/find_user.html", context={"form": form})
+            return render(request, "tavern_app/find_session.html", context={"form": form})
 
 
 def event_add_attendanceMS(request, session_id):
@@ -489,3 +551,98 @@ def event_add_attendanceGS(request, session_id):
 #     this_event = GamerSession.objects.get(pk=session_id)
 #     this_event.remove_user_from_list_of_attendees(request.user)
 #     return redirect('gamer-session-details', session_id=session_id)
+
+
+class MyProfileView(View):
+    def get(self, request, user_id):
+        user = User.objects.get(id=user_id)
+
+        return render(request, "tavern_app/my_profile.html", context={"user": user})
+
+
+class EditMasterSessionView(View):
+    def get(self, request, session_id):
+        form = EditMasterSessionForm(initial={"title": MasterSession.objects.get(id=session_id).title,
+                                              "date": MasterSession.objects.get(id=session_id).date,
+                                              "time": MasterSession.objects.get(id=session_id).time,
+                                              "number_of_players": MasterSession.objects.get(id=session_id).number_of_players,
+                                              "description": MasterSession.objects.get(id=session_id).description,
+                                              "difficulty": MasterSession.objects.get(id=session_id).difficulty,
+                                              "adult_only": MasterSession.objects.get(id=session_id).adult_only,
+                                              "other_requirements": MasterSession.objects.get(id=session_id).other_requirements})
+
+        return render(request, 'tavern_app/edit_master_session.html', {'form': form})
+
+    def post(self, request, session_id):
+        form = EditMasterSessionForm(request.POST)
+        session = MasterSession.objects.get(id=session_id)
+
+        if form.is_valid():
+            title = form.cleaned_data["title"]
+            date = form.cleaned_data["date"]
+            time = form.cleaned_data["time"]
+            number_of_players = form.cleaned_data["number_of_players"]
+            description = form.cleaned_data["description"]
+            difficulty = form.cleaned_data["difficulty"]
+            adult_only = form.cleaned_data["adult_only"]
+            other_requirements = form.cleaned_data["other_requirements"]
+
+            session.title = title
+            session.date = date
+            session.time = time
+            session.number_of_players = number_of_players
+            session.description = description
+            session.difficulty = difficulty
+            session.adult_only = adult_only
+            session.other_requirements = other_requirements
+
+            session.save()
+
+            return redirect(f"/master-session-details/{session_id}/")
+
+        else:
+            return render(request, 'tavern_app/edit_master_session.html', {"form": form})
+
+
+class EditGamerSessionView(View):
+    def get(self, request, session_id):
+        form = EditGamerSessionForm(initial={"title": GamerSession.objects.get(id=session_id).title,
+                                             "date": GamerSession.objects.get(id=session_id).date,
+                                             "time": GamerSession.objects.get(id=session_id).time,
+                                             "description": GamerSession.objects.get(id=session_id).description,
+                                             "difficulty": GamerSession.objects.get(id=session_id).difficulty,
+                                             "adult_only": GamerSession.objects.get(id=session_id).adult_only,
+                                             "master_requirements": GamerSession.objects.get(id=session_id).master_requirements,
+                                             "other_requirements": GamerSession.objects.get(id=session_id).other_requirements})
+
+        return render(request, 'tavern_app/edit_gamer_session.html', {'form': form})
+
+    def post(self, request, session_id):
+        form = EditGamerSessionForm(request.POST)
+        session = GamerSession.objects.get(id=session_id)
+
+        if form.is_valid():
+            title = form.cleaned_data["title"]
+            date = form.cleaned_data["date"]
+            time = form.cleaned_data["time"]
+            description = form.cleaned_data["description"]
+            difficulty = form.cleaned_data["difficulty"]
+            adult_only = form.cleaned_data["adult_only"]
+            master_requirements = form.cleaned_data["master_requirements"]
+            other_requirements = form.cleaned_data["other_requirements"]
+
+            session.title = title
+            session.date = date
+            session.time = time
+            session.description = description
+            session.difficulty = difficulty
+            session.adult_only = adult_only
+            session.master_requirements = master_requirements
+            session.other_requirements = other_requirements
+
+            session.save()
+
+            return redirect(f"/gamer-session-details/{session_id}/")
+
+        else:
+            return render(request, 'tavern_app/edit_gamer_session.html', {"form": form})

@@ -1,6 +1,7 @@
 {% extends "tavern_app/base.html" %}
 {% block content %}
-    <p><h2>Mistrzowie gry poszukujący bohaterów</h2></p>
+    <div class="scroll">
+    <p class="tavern-content">Mistrzowie gry poszukujący bohaterów</p>
     <table border="1">
       <tr>
         <th>Tytuł kampanii</th>
@@ -21,7 +22,7 @@
     {% endfor %}
     </table>
 
-    <p><h2>Bohaterowie poszukujący mistrzów gry</h2></p>
+    <p class="tavern-content">Bohaterowie poszukujący mistrzów gry</p>
     <table border="1">
       <tr>
         <th>Tytuł kampanii</th>
@@ -38,5 +39,6 @@
         </tr>
     {% endfor %}
     </table>
+    </div>
 
 {% endblock %}

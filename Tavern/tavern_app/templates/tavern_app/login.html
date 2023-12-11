@@ -4,12 +4,14 @@
 {% endblock %}
 <body>
     {% block content %}
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <input type="submit" value="Zaloguj" />
-        </form>
-        <h3>Nie masz założonego użytkownika? <a href="/sign-up/">Stwórz konto!</a></h3>
+        <div class="scroll">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" value="Zaloguj" />
+            </form>
+            <p class="tavern-details">Nie masz założonego użytkownika? <a class="tavern-details" href="/sign-up/">Stwórz konto!</a></p>
+        </div>
     {% endblock %}
 </body>
 </html>

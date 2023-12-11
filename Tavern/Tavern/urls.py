@@ -29,7 +29,10 @@ from tavern_app.views import MainPage, \
     GamerSessionDetailsView,\
     FindSessionView,\
     event_add_attendanceMS,\
-    event_add_attendanceGS
+    event_add_attendanceGS,\
+    MyProfileView,\
+    EditMasterSessionView,\
+    EditGamerSessionView
 
 
 urlpatterns = [
@@ -49,5 +52,7 @@ urlpatterns = [
     path("find-session/", FindSessionView.as_view(), name="find-session"),
     path("add-attendance-ms/<int:session_id>/", event_add_attendanceMS, name="master-add-attendance"),
     path("add-attendance-gs/<int:session_id>/", event_add_attendanceGS, name="gamer-add-attendance"),
-
+    path("my-profile/<int:user_id>/", MyProfileView.as_view(), name="my-profile"),
+    path("edit-master-session/<int:session_id>/", EditMasterSessionView.as_view(), name="edit-master-session"),
+    path("edit-gamer-session/<int:session_id>/", EditGamerSessionView.as_view(), name="edit-gamer-session")
 ]

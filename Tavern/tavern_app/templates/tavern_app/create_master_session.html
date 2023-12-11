@@ -3,11 +3,13 @@
     Stwórz sesję
 {% endblock %}
 {% block content %}
-    <h2>Utwórz ogłoszenie dla zainteresowanych bohaterów</h2>
-<form action="" method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Utwórz sesję</button>
-</form>
+    <div class="scroll">
+        <p class="tavern-content">Utwórz ogłoszenie dla zainteresowanych bohaterów</p>
+        <form action="" method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit">Utwórz sesję</button>
+        </form>
+    </div>
 
 {% endblock %}

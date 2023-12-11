@@ -10,7 +10,7 @@
     <p class="tavern-content">NADCHODZĄCE SESJE:</p>
 
     {% if master_sessions and gamer_sessions %}
-    <p class="tavern-details">JAKO GRACZ</p>
+    <p class="tavern-details">JAKO GRACZ:</p>
         {% for session in master_sessions %}
             <a class="tavern-details" href="/master-session-details/{{ session.id }}">{{ session.title }}</a>
         {% endfor %}
@@ -21,14 +21,14 @@
     {% endif %}
 
     {% if gamer_sessions and not master_sessions %}
-        <p class="tavern-details">JAKO MISTRZ</p>
+        <p class="tavern-details">JAKO MISTRZ:</p>
         {% for session in gamer_sessions %}
             <a class="tavern-details" href="/master-session-details/{{ session.id }}">{{ session.title }}</a>
         {% endfor %}
     {% endif %}
 
     {% if master_sessions and not gamer_sessions %}
-        <p class="tavern-details">JAKO GRACZ</p>
+        <p class="tavern-details">JAKO GRACZ:</p>
         {% for session in master_sessions %}
             <a class="tavern-details" href="/master-session-details/{{ session.id }}">{{ session.title }}</a>
         {% endfor %}
@@ -37,9 +37,6 @@
     {% if not master_sessions and not gamer_sessions %}
         <p class="tavern-details">{{ user.username }} nie bierze udziału w żadnej sesji</p>
     {% endif %}
-{#    {% if user == request.user %}#}
-{#        <a class="tavern-content" href="/edit-profile/{{ user.id }}/">EDYTUJ PROFIL</a>#}
-{#    {% endif %}#}
     </div>
 
 {% endblock %}
