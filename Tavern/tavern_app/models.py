@@ -102,3 +102,13 @@ class GamerSession(models.Model):
 class GamerSessionRegistration(models.Model):
     session = models.ForeignKey(GamerSession, verbose_name='Sesja', on_delete=models.CASCADE)
     user = models.ForeignKey(User, verbose_name='Uczestnik', on_delete=models.CASCADE)
+
+
+class Comment(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    body = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('created',)

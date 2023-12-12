@@ -2,7 +2,9 @@ import random
 from urllib import request
 
 from django.contrib.auth import login, logout
-from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
@@ -97,6 +99,13 @@ class LoginView(FormView):
     def form_valid(self, form):
         user = form.user
         login(self.request, user)
+
+        redirect_to = self.request.GET.get('next', None)
+        if redirect_to:
+            return HttpResponseRedirect(redirect_to)
+        else:
+            return HttpResponseRedirect(reverse_lazy("main"))
+
         return super().form_valid(form)
 
 
@@ -253,13 +262,20 @@ class UserDetailsView(View):
             return render(request, "tavern_app/user_details.html", context={"user": user})
 
 
-class CreateSessionBaseView(View):
+class CreateSessionBaseView(LoginRequiredMixin, View):
+    login_url = 'login'
+
     def get(self, request):
+
         return render(request, "tavern_app/create_session_base.html")
 
 
-class CreateMasterSessionView(View):
+
+class CreateMasterSessionView(LoginRequiredMixin, View):
+    login_url = 'login'
+
     def get(self, request):
+
         form = MasterSessionForm
         return render(request, 'tavern_app/create_master_session.html', {'form': form})
 
@@ -291,13 +307,14 @@ class CreateMasterSessionView(View):
 
             new_session.save()
 
-            return redirect("main")
+            return redirect("sessions")
 
         else:
             return render(request, 'tavern_app/create_master_session.html', {"form": form})
 
 
-class CreateGamerSessionView(View):
+class CreateGamerSessionView(LoginRequiredMixin, View):
+    login_url = 'login'
     def get(self, request):
         form = GamerSessionForm
         return render(request, 'tavern_app/create_gamer_session.html', {'form': form})
@@ -330,7 +347,7 @@ class CreateGamerSessionView(View):
 
             new_session.save()
 
-            return redirect("main")
+            return redirect("sessions")
 
         else:
             return render(request, 'tavern_app/create_gamer_session.html', {"form": form})
@@ -509,6 +526,7 @@ class FindSessionView(View):
             return render(request, "tavern_app/find_session.html", context={"form": form})
 
 
+@login_required(login_url="login")
 def event_add_attendanceMS(request, session_id):
     this_event = MasterSession.objects.get(pk=session_id)
 
@@ -535,6 +553,7 @@ def event_add_attendanceMS(request, session_id):
 #     return redirect('master-session-details', session_id=session_id)
 
 
+@login_required(login_url="login")
 def event_add_attendanceGS(request, session_id):
     this_event = GamerSession.objects.get(pk=session_id)
 
@@ -553,14 +572,18 @@ def event_add_attendanceGS(request, session_id):
 #     return redirect('gamer-session-details', session_id=session_id)
 
 
-class MyProfileView(View):
+class MyProfileView(LoginRequiredMixin, View):
+    login_url = 'login'
+
     def get(self, request, user_id):
         user = User.objects.get(id=user_id)
 
         return render(request, "tavern_app/my_profile.html", context={"user": user})
 
 
-class EditMasterSessionView(View):
+class EditMasterSessionView(LoginRequiredMixin, View):
+    login_url = 'login'
+
     def get(self, request, session_id):
         form = EditMasterSessionForm(initial={"title": MasterSession.objects.get(id=session_id).title,
                                               "date": MasterSession.objects.get(id=session_id).date,
@@ -604,7 +627,9 @@ class EditMasterSessionView(View):
             return render(request, 'tavern_app/edit_master_session.html', {"form": form})
 
 
-class EditGamerSessionView(View):
+class EditGamerSessionView(LoginRequiredMixin, View):
+    login_url = 'login'
+
     def get(self, request, session_id):
         form = EditGamerSessionForm(initial={"title": GamerSession.objects.get(id=session_id).title,
                                              "date": GamerSession.objects.get(id=session_id).date,
