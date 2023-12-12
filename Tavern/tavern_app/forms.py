@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.forms import PasswordInput, SelectDateWidget
 from datetime import datetime
 
-from tavern_app.models import Profile, MasterSession, GamerSession
+from tavern_app.models import Profile, MasterSession, GamerSession, Comment
 
 
 # class UserSignUpForm(forms.Form):
@@ -26,6 +26,8 @@ from tavern_app.models import Profile, MasterSession, GamerSession
 
 
 class UserForm(forms.ModelForm):
+    password = forms.CharField(label="Hasło", widget=PasswordInput())
+    confirm_password = forms.CharField(label="Potwierdź hasło", widget=PasswordInput())
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'password')
@@ -33,9 +35,19 @@ class UserForm(forms.ModelForm):
         widgets = {
             "password": PasswordInput(
                 attrs={'placeholder': '********', 'autocomplete': 'off', 'data-toggle': 'password'}),
+            "confirm_password": PasswordInput(
+                attrs={'placeholder': '********', 'autocomplete': 'off', 'data-toggle': 'password'}),
         }
 
+    def clean(self):
+        cleaned_data = super(UserForm, self).clean()
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
 
+        if password != confirm_password:
+            raise forms.ValidationError(
+                "Podane hasła nie są identyczne. Spróbuj ponownie"
+            )
 
 
 class ProfileForm(forms.ModelForm):
@@ -88,14 +100,14 @@ class MasterSessionForm(forms.ModelForm):
         time = cleaned_data.get("time")
         today = date.today()
 
-        print(type(date))
-        print(type(today))
-
         if date < today:
             raise forms.ValidationError("Sesja nie może się odbyć w przeszłości")
 
-        if time < datetime.now().time():
-            raise forms.ValidationError("Godzina sesji jest z przeszłości")
+        if time < datetime.now().time() and date > today:
+            pass
+
+        if date <= today and time <= datetime.now().time():
+            raise forms.ValidationError("Sprawdź godzinę sesji")
 
 
 class GamerSessionForm(forms.ModelForm):
@@ -118,8 +130,11 @@ class GamerSessionForm(forms.ModelForm):
         if date < today:
             raise forms.ValidationError("Sesja nie może się odbyć w przeszłości")
 
-        if time < datetime.now().time():
-            raise forms.ValidationError("Godzina sesji jest z przeszłości")
+        if time < datetime.now().time() and date > today:
+            pass
+
+        if date <= today and time <= datetime.now().time():
+            raise forms.ValidationError("Sprawdź godzinę sesji")
 
 
 class FindSessionForm(forms.Form):
@@ -188,3 +203,9 @@ class EditGamerSessionForm(forms.ModelForm):
 
         if time < datetime.now().time():
             raise forms.ValidationError("Godzina sesji jest z przeszłości")
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('body',)

@@ -92,18 +92,18 @@
 /*------------------------------*/
 /*---- Main style ----*/
 /*------------------------------*/
-:root {
-  --link-color: #ff6600;
-  --light-link-color: #fffffa;
-  --background-color: #4b4c4a;
-  --lighter-background-color: #5a615f;
-  --lighter-text-color: #9fa292;
-  --dark-text: #000000;
-  --blue: #007bff;
-  --yellow: #ffc107;
-  --green: #1e7e34;
-  font-size: 16px;
-}
+/*:root {*/
+/*  --link-color: #ff6600;*/
+/*  --light-link-color: #fffffa;*/
+/*  --background-color: #4b4c4a;*/
+/*  --lighter-background-color: #5a615f;*/
+/*  --lighter-text-color: #9fa292;*/
+/*  --dark-text: #000000;*/
+/*  --blue: #007bff;*/
+/*  --yellow: #ffc107;*/
+/*  --green: #1e7e34;*/
+/*  font-size: 16px;*/
+/*}*/
 
 html {
   min-height: 100%;
@@ -226,4 +226,13 @@ body {
     -webkit-text-stroke: 2px black;
     text-align: left;
     color: yellow;
+}
+
+footer {
+  background-color: black; /* Zmieniono kolor tła na czarny */
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+  /* Ustawienia dla sticky footer */
+  flex-shrink: 0;
 }
