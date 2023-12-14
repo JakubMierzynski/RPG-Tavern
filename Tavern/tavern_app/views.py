@@ -1,49 +1,23 @@
-import random
-from urllib import request
-
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import CreateView, FormView
+from django.views.generic import FormView
 from tavern_app.models import Profile, MasterSession, GamerSession, MasterSessionRegistration, GamerSessionRegistration
 from tavern_app.forms import UserForm, ProfileForm, User, LoginForm, FindUserForm, MasterSessionForm, GamerSessionForm, FindSessionForm, EditMasterSessionForm, EditGamerSessionForm
 from datetime import datetime
 from django.contrib import messages
-from random import shuffle
-
-
-
-
-
 
 # Create your views here.
 
+
 class MainPage(View):
     def get(self, request):
-        all_sessions = []
-        all_master_sessions = MasterSession.objects.all()
-        all_gamer_sessions = GamerSession.objects.all()
-
-        for session in all_master_sessions:
-            all_sessions.append(session)
-
-        for session in all_gamer_sessions:
-            all_sessions.append(session)
-
-        random.shuffle(all_sessions)
-
-        session1 = all_sessions[0]
-        session2 = all_sessions[1]
-        session3 = all_sessions[2]
-
-        return render(request, "tavern_app/mainpage.html", context={
-            'session1': session1,
-            'session2': session2,
-            'session3': session3})
+        # nothing to code here
+        return render(request, "tavern_app/mainpage.html")
 
 
 class SignUpUserView(View):
@@ -104,9 +78,7 @@ class LoginView(FormView):
         if redirect_to:
             return HttpResponseRedirect(redirect_to)
         else:
-            return HttpResponseRedirect(reverse_lazy("main"))
-
-        return super().form_valid(form)
+            return super().form_valid(form)
 
 
 def logout_view(request):
@@ -154,7 +126,7 @@ class UserDetailsView(View):
     def get(self, request, user_id):
         user = User.objects.get(pk=user_id)
 
-        #Jeśli i mistrz i gracz:
+        # if master and player
         if MasterSessionRegistration.objects.filter(user_id=user_id).exists() and GamerSessionRegistration.objects.filter(user_id=user_id).exists():
             master_sessions_registered = MasterSessionRegistration.objects.filter(user_id=user_id)
             gamer_sessions_registered = GamerSessionRegistration.objects.filter(user_id=user_id)
@@ -204,7 +176,7 @@ class UserDetailsView(View):
                                                                             "master_sessions": set(master_sessions_active_only),
                                                                             "gamer_sessions": set(gamer_sessions_active_only)})
 
-        #Jeśli tylko mistrz
+        # if only master
         if not MasterSessionRegistration.objects.filter(user_id=user_id).exists() and GamerSessionRegistration.objects.filter(user_id=user_id).exists():
             gamer_sessions_registered = GamerSessionRegistration.objects.filter(user_id=user_id)
             owning_gamer_sessions = GamerSession.objects.filter(owner=user)
@@ -231,7 +203,7 @@ class UserDetailsView(View):
             return render(request, "tavern_app/user_details.html", context={"user": user,
                                                                             "gamer_sessions": set(gamer_sessions_active_only)})
 
-        # Jeśli tylko gracz
+        # if only player
         if not GamerSessionRegistration.objects.filter(user_id=user_id).exists() and MasterSessionRegistration.objects.filter(user_id=user_id).exists():
             master_sessions_registered = MasterSessionRegistration.objects.filter(user_id=user_id)
             owning_master_sessions = MasterSession.objects.filter(owner=user)
@@ -266,7 +238,7 @@ class CreateSessionBaseView(LoginRequiredMixin, View):
     login_url = 'login'
 
     def get(self, request):
-
+        # nothing to code here
         return render(request, "tavern_app/create_session_base.html")
 
 
@@ -275,8 +247,8 @@ class CreateMasterSessionView(LoginRequiredMixin, View):
     login_url = 'login'
 
     def get(self, request):
-
         form = MasterSessionForm
+
         return render(request, 'tavern_app/create_master_session.html', {'form': form})
 
     def post(self, request):
@@ -315,6 +287,7 @@ class CreateMasterSessionView(LoginRequiredMixin, View):
 
 class CreateGamerSessionView(LoginRequiredMixin, View):
     login_url = 'login'
+
     def get(self, request):
         form = GamerSessionForm
         return render(request, 'tavern_app/create_gamer_session.html', {'form': form})
@@ -547,12 +520,6 @@ def event_add_attendanceMS(request, session_id):
         return redirect('master-session-details', session_id=session_id)
 
 
-# def event_cancel_attendanceMS(request, session_id):
-#     this_event = MasterSession.objects.get(pk=session_id)
-#     this_event.remove_user_from_list_of_attendees(request.user)
-#     return redirect('master-session-details', session_id=session_id)
-
-
 @login_required(login_url="login")
 def event_add_attendanceGS(request, session_id):
     this_event = GamerSession.objects.get(pk=session_id)
@@ -564,12 +531,6 @@ def event_add_attendanceGS(request, session_id):
 
         messages.info(request, 'Zostałeś Mistrzem Gry tej sesji')
         return redirect('gamer-session-details', session_id=session_id)
-
-
-# def event_cancel_attendanceGS(request, session_id):
-#     this_event = GamerSession.objects.get(pk=session_id)
-#     this_event.remove_user_from_list_of_attendees(request.user)
-#     return redirect('gamer-session-details', session_id=session_id)
 
 
 class MyProfileView(LoginRequiredMixin, View):
